@@ -1,11 +1,11 @@
 package org.opentelecoms.camelsiptest;
 
-import org.apache.camel.Predicate;
-import org.apache.camel.PropertyInject;
+import org.apache.camel.*;
 import org.apache.camel.spring.SpringRouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sip.message.Request;
 import java.net.InetAddress;
 
 public class RouteBuilder extends SpringRouteBuilder {
@@ -76,7 +76,16 @@ public class RouteBuilder extends SpringRouteBuilder {
         /**
          * This Camel routes handles messages from JMS going out to the SIP world
          */
+
 		from(activeMQqueue)
+				.process(new Processor()
+				{
+					@Override
+					public void process(Exchange exchange) throws Exception
+					{
+						exchange.getIn().setHeader(Request.MESSAGE, String.class);
+					}
+				})
 		    .to(sendingSipURI);     //send message to given SIP uri
 		
 		/**
