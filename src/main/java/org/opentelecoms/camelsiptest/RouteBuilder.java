@@ -9,21 +9,21 @@ import javax.sip.message.Request;
 import java.net.InetAddress;
 
 public class RouteBuilder extends SpringRouteBuilder {
-	
-	private Logger logger = LoggerFactory.getLogger(RouteBuilder.class);
-	
-	// FIXME - bug CAMEL-8125
-	//@PropertyInject("local.country")
-	private String localCountry = "CH";
-	
-	//@PropertyInject("smsc.country")
-	private String smscCountry = "UK";
-	
-	//@PropertyInject("throttle.timePeriodMillis")
-	long throttleTimePeriodMillis = 1000;
-	
-	//@PropertyInject("throttle.maximumRequestsPerPeriod")
-	int throttleRequestsPerPeriod = 1;
+
+    private Logger logger = LoggerFactory.getLogger(RouteBuilder.class);
+
+    // FIXME - bug CAMEL-8125
+    //@PropertyInject("local.country")
+    private String localCountry = "CH";
+
+    //@PropertyInject("smsc.country")
+    private String smscCountry = "UK";
+
+    //@PropertyInject("throttle.timePeriodMillis")
+    long throttleTimePeriodMillis = 1000;
+
+    //@PropertyInject("throttle.maximumRequestsPerPeriod")
+    int throttleRequestsPerPeriod = 1;
 
     /**
      * Configures two camel routes:
@@ -31,24 +31,24 @@ public class RouteBuilder extends SpringRouteBuilder {
      * one sends the messages from that activeMQ queue to a specified sip address
      * @throws Exception
      */
-	@Override
-	public void configure() throws Exception {
+    @Override
+    public void configure() throws Exception {
 
-		/**
-		 * Create some strings that will be used in the Camel routes
-		 */
+        /**
+         * Create some strings that will be used in the Camel routes
+         */
         String localhost = InetAddress.getLocalHost().getHostAddress();
 
         //the activeMQ queue
         String activeMQqueue = "activemq:sip-messages";
 
         //the SIP uri sending out to
-		String sendingUsername = "niktocamel";
+        String sendingUsername = "niktocamel";
         String sendingHost     = localhost;
         String sendingPort     = "5156";
 
         String sendingSipURI =
-		        "sip://" + sendingUsername + "@" + sendingHost + ":" + sendingPort +
+                "sip://" + sendingUsername + "@" + sendingHost + ":" + sendingPort +
                 "?stackName=Retriever" +
                 "&fromUser=sending" +
                 "&fromHost=" + localhost +
@@ -58,9 +58,9 @@ public class RouteBuilder extends SpringRouteBuilder {
 
 
         //receiving from the SIP world
-		String receivingSipURI =
+        String receivingSipURI =
                 "sip://listener@" + localhost + ":5154" +
-				"?stackName=Listener" +
+                "?stackName=Listener" +
                 "&transport=udp" +
                 "&eventHeaderName=retrievedFromSIP" +
                 "&eventId=SIP";
@@ -79,27 +79,27 @@ public class RouteBuilder extends SpringRouteBuilder {
          * This Camel routes handles messages from JMS going out to the SIP world
          */
 
-		//adds the right SIP method in the message header
-		Processor headerAdder = new Processor()
-		{
-			@Override
-			public void process(Exchange exchange) throws Exception
-			{
-				exchange.getIn().setHeader("REQUEST_METHOD", Request.MESSAGE);
+        //adds the right SIP method in the message header
+        Processor headerAdder = new Processor()
+        {
+            @Override
+            public void process(Exchange exchange) throws Exception
+            {
+                exchange.getIn().setHeader("REQUEST_METHOD", Request.MESSAGE);
             }
-		};
+        };
 
-		from(activeMQqueue)
-				.process(headerAdder).to(sendingSipURI);  //send message to given SIP uri
-		
-		/**
-		 * This Camel route handles messages coming to us from the SIP world
-		 */
-		from(receivingSipURI)
+        from(activeMQqueue)
+                .process(headerAdder).to(sendingSipURI);  //send message to given SIP uri
+
+        /**
+         * This Camel route handles messages coming to us from the SIP world
+         */
+        from(receivingSipURI)
             .to(logReceivedMessage) // Log a copy of the message
-         	.to(activeMQqueue)  	// put it in a JMS queue
+            .to(activeMQqueue)  	// put it in a JMS queue
             .to(testFile);          // put message in a file
 
-	}
+    }
 
 }
