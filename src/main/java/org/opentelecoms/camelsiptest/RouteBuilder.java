@@ -73,20 +73,24 @@ public class RouteBuilder extends SpringRouteBuilder {
         //to store the messages in a file
         String testFile = "file://test";
 
+
+
         /**
          * This Camel routes handles messages from JMS going out to the SIP world
          */
 
+		//adds the right SIP method in the message header
+		Processor headerAdder = new Processor()
+		{
+			@Override
+			public void process(Exchange exchange) throws Exception
+			{
+				exchange.getIn().setHeader("REQUEST_METHOD", Request.MESSAGE);
+            }
+		};
+
 		from(activeMQqueue)
-				.process(new Processor()
-				{
-					@Override
-					public void process(Exchange exchange) throws Exception
-					{
-						exchange.getIn().setHeader(Request.MESSAGE, String.class);
-					}
-				})
-		    .to(sendingSipURI);     //send message to given SIP uri
+				.process(headerAdder).to(sendingSipURI);  //send message to given SIP uri
 		
 		/**
 		 * This Camel route handles messages coming to us from the SIP world
