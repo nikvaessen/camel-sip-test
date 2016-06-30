@@ -97,7 +97,7 @@ public class RouteBuilder extends SpringRouteBuilder {
          */
         from(receivingSipURI)
             .to(logReceivedMessage) // Log a copy of the message
-            .to(activeMQqueue)  	// put it in a JMS queue
+            .to(activeMQqueue)      // put it in a JMS queue
             .to(testFile);          // put message in a file
 
     }
