@@ -48,7 +48,7 @@ public class RouteBuilder extends SpringRouteBuilder {
         String sendingPort     = "5156";
 
         String sendingSipURI =
-				"sip://" + sendingUsername + "@" + sendingHost + ":" + sendingPort +
+		        "sip://" + sendingUsername + "@" + sendingHost + ":" + sendingPort +
                 "?stackName=Retriever" +
                 "&fromUser=sending" +
                 "&fromHost=" + localhost +
